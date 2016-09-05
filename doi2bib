@@ -1,0 +1,75 @@
+#!/bin/bash
+# The MIT License (MIT)
+#
+# Copyright (c) 2016 Felipe Silveira de Souza Schneider
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+#? doi2bib 0.1
+#?
+#?   Convert Digital Object Identifier (DOI) to BibTeX using crosscite.org.
+#?   A digital object identifier (DOI) is received and a corresponding BibTeX
+#?   entry is output.
+#?
+#? Usage: doi2bib doi
+#?
+#?   -h  show this message
+#?   -v  show version
+#?
+#? Examples:
+#?
+#?   $ doi2bib 10.1103/PhysRev.140.A1133  # write to stdout
+#?   $ doi2bib 10.1103/PhysRev.140.A1133 >> citations.bib  # append to file
+
+while getopts ":hv" opt "$@"
+  do
+    case $opt in
+      h)  # help
+        grep "^#?" "$0" | cut -c 4-
+        exit 0
+        ;;
+      v)  # version
+        grep "^#? doi2bib" "$0" | cut -c 4-
+        exit 0
+        ;;
+      \?)
+        echo "Invalid option: -$OPTARG" >&2
+        exit 1
+        ;;
+      :)
+        echo "Option -$OPTARG requires an argument." >&2
+        exit 1
+        ;;
+    esac
+  done
+
+# recover $@
+shift $((OPTIND-1))
+
+# we consider everything after the command a single DOI.
+doi=$@
+
+# we do some encoding as needed.
+doi=${doi//+/%2B}
+
+# we retrieve the data from http://dx.doi.org/
+curl -s -LH "Accept: text/bibliography; style=bibtex" "http://dx.doi.org/${doi}" | \
+  sed -e 's/^ *//' \
+      -e 's/, /,\n /g' \
+      -e 's/}}$/}\n}\n/'
