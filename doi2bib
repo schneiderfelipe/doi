@@ -63,7 +63,7 @@ while getopts ":hv" opt "$@"
 shift $((OPTIND-1))
 
 # we consider everything after the command a single DOI.
-doi=$@
+doi=$*
 
 # we do some encoding as needed.
 doi=${doi//+/%2B}
