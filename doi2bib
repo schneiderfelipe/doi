@@ -21,11 +21,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-#? doi2bib 0.1
+#? doi2bib 0.2
 #?
 #?   Convert Digital Object Identifier (DOI) to BibTeX using crosscite.org.
-#?   A digital object identifier (DOI) is received and a corresponding BibTeX
-#?   entry is output.
+#?   A DOI is received and a corresponding BibTeX entry is output.
 #?
 #? Usage: doi2bib doi
 #?
@@ -34,7 +33,8 @@
 #?
 #? Examples:
 #?
-#?   $ doi2bib 10.1103/PhysRev.140.A1133  # write to stdout
+#?   $ doi2bib 10.1103/PhysRev.140.A1133                   # write to stdout
+#?   $ doi2bib 10.1021/la203078w
 #?   $ doi2bib 10.1103/PhysRev.140.A1133 >> citations.bib  # append to file
 
 while getopts ":hv" opt "$@"
@@ -63,7 +63,7 @@ while getopts ":hv" opt "$@"
 shift $((OPTIND-1))
 
 # we consider everything after the command a single DOI.
-doi=$@
+doi=$*
 
 # we do some encoding as needed.
 doi=${doi//+/%2B}

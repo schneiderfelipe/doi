@@ -1,5 +1,4 @@
-(A) Make keys as FirstAuthorYear (e.g. "Becke1988").
-(A) Escape DOIs before download, ensure proper URLs are being used; example of non-working DOI: 10.1021/cr030698+.
-(A) Download breaks sometimes, so retry or tweak timeouts.
-(A) Handle error (e.g. "not found").
-(B) Create --html option for HTML output.
+(A) Create --html option for HTML output.
+(B) Escape DOIs before download, ensure proper URLs are being used; example of non-working DOI: 10.1021/cr030698+.
+(B) Download breaks sometimes, so retry or tweak timeouts.
+(B) Handle error (e.g. "not found").
