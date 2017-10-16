@@ -36,6 +36,11 @@
 #?   $ doi2bib 10.1103/PhysRev.140.A1133                   # write to stdout
 #?   $ doi2bib 10.1021/la203078w
 #?   $ doi2bib 10.1103/PhysRev.140.A1133 >> citations.bib  # append to file
+#?
+#? License:
+#?
+#?   doi2bib <https://github.com/dudektria/doi2bib>
+#?   is licensed under the MIT License.
 
 while getopts ":hv" opt "$@"
   do
