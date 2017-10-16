@@ -24,18 +24,18 @@
 #? doi2bib 0.2
 #?
 #?   Convert Digital Object Identifier (DOI) to BibTeX using crosscite.org.
-#?   A DOI is received and a corresponding BibTeX entry is output.
+#?   DOIs are received and the corresponding BibTeX entries are output.
 #?
-#? Usage: doi2bib doi
+#? Usage: doi2bib doi [doi...]
 #?
 #?   -h  show this message
 #?   -v  show version
 #?
 #? Examples:
 #?
-#?   $ doi2bib 10.1103/PhysRev.140.A1133                   # write to stdout
-#?   $ doi2bib 10.1021/la203078w
-#?   $ doi2bib 10.1103/PhysRev.140.A1133 >> citations.bib  # append to file
+#?   $ doi2bib 10.1103/PhysRev.140.A1133                    # write to stdout
+#?   $ doi2bib 10.1103/PhysRev.140.A1133 >> citations.bib   # append to file
+#?   $ doi2bib 10.1021/la203078w 10.1103/PhysRev.140.A1133  # get many DOIs
 #?
 #? License:
 #?
@@ -67,14 +67,14 @@ while getopts ":hv" opt "$@"
 # recover $@
 shift $((OPTIND-1))
 
-# we consider everything after the command a single DOI.
-doi=$*
+# we consider everything after the command a list of DOIs.
+for doi in "$@"; do
+  # we do some encoding as needed.
+  doi=${doi//+/%2B}
 
-# we do some encoding as needed.
-doi=${doi//+/%2B}
-
-# we retrieve the data from http://dx.doi.org/
-curl -s -LH "Accept: text/bibliography; style=bibtex" "http://dx.doi.org/${doi}" | \
-  sed -e 's/^ *//' \
-      -e 's/, /,\n /g' \
-      -e 's/}}$/}\n}\n/'
+  # we retrieve the data from http://dx.doi.org/
+  curl -s -LH "Accept: text/bibliography; style=bibtex" "http://dx.doi.org/${doi}" | \
+    sed -e 's/^ *//' \
+        -e 's/, /,\n /g' \
+        -e 's/}}$/}\n}\n/'
+done
