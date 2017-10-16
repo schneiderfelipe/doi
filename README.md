@@ -3,6 +3,7 @@
 Convert [Digital Object Identifier (DOI)](https://www.doi.org) to
 [BibTeX](http://www.bibtex.org) using
 [crosscite.org](https://citation.crosscite.org/).
+A DOI is received and a corresponding BibTeX entry is output.
 
 Inspired by <https://gist.github.com/mlund/4609288> and
 <http://www.doi2bib.org/>.
