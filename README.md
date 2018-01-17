@@ -14,6 +14,7 @@ any more.
 ## Usage
 
     $ doi2bib 10.1021/la203078w 10.1103/PhysRev.140.A1133
+
     @article{Cabaleiro_Lago_2012,
      title={The Effect of Nanoparticles on Amyloid Aggregation Depends on the Protein Stability and Intrinsic Aggregation Rate},
      volume={28},
