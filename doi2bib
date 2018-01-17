@@ -1,7 +1,7 @@
 #!/bin/bash
 # The MIT License (MIT)
 #
-# Copyright (c) 2016 Felipe Silveira de Souza Schneider
+# Copyright (c) 2016--2018 Felipe Silveira de Souza Schneider
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-#? doi2bib 1.0
+#? doi2bib 1.1
 #?
 #?   Convert Digital Object Identifier (DOI) to BibTeX using crosscite.org.
 #?   DOIs are received and the corresponding BibTeX entries are output.
@@ -73,7 +73,8 @@ for doi in "$@"; do
 
   # we retrieve the data from http://dx.doi.org/
   curl -s -LH "Accept: text/bibliography; style=bibtex" "http://dx.doi.org/${doi}" | \
-    sed -e 's/^ *//' \
-        -e 's/, /,\n /g' \
-        -e 's/}}$/}\n}\n/'
+    sed -e $'s/^ *//' \
+        -e $'s/}, /},\\\n  /g' \
+        -e $'s/, /,\\\n  /1' \
+        -e $'s/}}$/}\\\n}\\\n/'
 done
