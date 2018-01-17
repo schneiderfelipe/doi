@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-#? doi2bib 1.0
+#? doi2bib 1.1
 #?
 #?   Convert Digital Object Identifier (DOI) to BibTeX using crosscite.org.
 #?   DOIs are received and the corresponding BibTeX entries are output.
