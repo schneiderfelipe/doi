@@ -1,4 +1,8 @@
-# doi2bib
+# doi2bib and url2bib
+
+This repository provides scripts for converting from either [Digital Object Identifier (DOI)](https://www.doi.org) or [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to [BibTeX](http://www.bibtex.org).
+
+## doi2bib
 
 Convert [Digital Object Identifier (DOI)](https://www.doi.org) to
 [BibTeX](http://www.bibtex.org) using
@@ -11,45 +15,67 @@ Inspired by <https://gist.github.com/mlund/4609288> and
 **October 16, 2017**: <http://www.doi2bib.org/> seems not to be working
 any more.
 
-## Usage
+## url2bib
 
-    $ doi2bib 10.1021/la203078w 10.1103/PhysRev.140.A1133
+Convert [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to
+[BibTeX](http://www.bibtex.org) using pure
+[Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)).
+URLs are received and the corresponding BibTeX entries are output.
 
-    @article{Cabaleiro_Lago_2012,
-     title={The Effect of Nanoparticles on Amyloid Aggregation Depends on the Protein Stability and Intrinsic Aggregation Rate},
-     volume={28},
-     ISSN={1520-5827},
-     url={http://dx.doi.org/10.1021/la203078w},
-     DOI={10.1021/la203078w},
-     number={3},
-     journal={Langmuir},
-     publisher={American Chemical Society (ACS)},
-     author={Cabaleiro-Lago,
-     C. and Szczepankiewicz,
-     O. and Linse,
-     S.},
-     year={2012},
-     month={Jan},
-     pages={1852–1857}
-    }
-
-    @article{Kohn_1965,
-     title={Self-Consistent Equations Including Exchange and Correlation Effects},
-     volume={140},
-     ISSN={0031-899X},
-     url={http://dx.doi.org/10.1103/PhysRev.140.A1133},
-     DOI={10.1103/physrev.140.a1133},
-     number={4A},
-     journal={Physical Review},
-     publisher={American Physical Society (APS)},
-     author={Kohn,
-     W. and Sham,
-     L. J.},
-     year={1965},
-     month={Nov},
-     pages={A1133–A1138}
-    }
+(This is made to be used exactly as one would use doi2bib.)
 
 ## Installation
 
 After downloading the tarball and using `cd` to go where the files are, simply do a `sudo make install` and everything will be installed.
+
+## Usage
+
+    $ doi2bib 10.1021/acs.jpcc.8b06244 10.1021/acscatal.9b00210                                
+    @article{Schneider_2018,
+      title={How Do Secondary Phosphine Oxides Interact with Silver Nanoclusters? Insights from Computation},
+      volume={122},
+      ISSN={1932-7455},
+      url={http://dx.doi.org/10.1021/acs.jpcc.8b06244},
+      DOI={10.1021/acs.jpcc.8b06244},
+      number={37},
+      journal={The Journal of Physical Chemistry C},
+      publisher={American Chemical Society (ACS)},
+      author={Schneider, Felipe S. S. and Segala, Maximiliano and Caramori, Giovanni F. and da Silva, Eder Henrique and Parreira, Renato L. T. and Schrekker, Henri S. and van Leeuwen, Piet W. N. M.},
+      year={2018},
+      month={Aug},
+      pages={21449–21461}
+    }
+
+    @article{Coelho_2019,
+      title={Mechanism of Palladium(II)-Mediated Uncaging Reactions of Propargylic Substrates},
+      volume={9},
+      ISSN={2155-5435},
+      url={http://dx.doi.org/10.1021/acscatal.9b00210},
+      DOI={10.1021/acscatal.9b00210},
+      number={5},
+      journal={ACS Catalysis},
+      publisher={American Chemical Society (ACS)},
+      author={Coelho, Sara E. and Schneider, Felipe S. S. and de Oliveira, Daniela C. and Tripodi, Guilherme L. and Eberlin, Marcos N. and Caramori, Giovanni F. and de Souza, Bernardo and Domingos, Josiel B.},
+      year={2019},
+      month={Mar},
+      pages={3792–3799}
+    }
+
+    $ url2bib google.com http://schneiderfelipe.xyz/ https://github.com/schneiderfelipe/doi2bib
+    @misc{google,
+      title = {Google},
+      howpublished = {\url{google.com}},
+      note = {Accessed: 2020-01-27}
+    }
+
+    @misc{felipe-s-s-schneider,
+      title = {Felipe S. S. Schneider},
+      howpublished = {\url{http://schneiderfelipe.xyz/}},
+      note = {Accessed: 2020-01-27}
+    }
+
+    @misc{github-schneiderfelipe-doi2bib-convert-dois-and-urls-to-bibtex,
+      title = {GitHub - schneiderfelipe/doi2bib: Convert DOIs and URLs to BibTeX},
+      howpublished = {\url{https://github.com/schneiderfelipe/doi2bib}},
+      note = {Accessed: 2020-01-27}
+    }
