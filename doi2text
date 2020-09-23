@@ -1,0 +1,111 @@
+#!/bin/bash
+# The MIT License (MIT)
+#
+# Copyright (c) 2020 Felipe Silveira de Souza Schneider
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+#? doi2text 1.0
+#?
+#?   Convert Digital Object Identifier (DOI) to plain text using
+#?   citation.crosscite.org. DOIs are received and the corresponding text
+#?   entries are output.
+#?
+#? Usage: doi2text url [url...]
+#?        doi2text -S
+#?
+#?   -h  show this message
+#?   -v  show version
+#?   -s  set ciation style from the ones given in
+#?       <https://github.com/citation-style-language/styles> (this is
+#?       "chicago-author-date" by default, see examples below)
+#?   -S  list all available citation styles and quit
+#?   -l  set locale from the ones given in
+#?       <https://github.com/citation-style-language/locales>, e.g. "pt-BR"
+#?       (this is guessed from the environment if not given, see examples
+#?       below)
+#?   -L  list all available locales and quit
+#?
+#? Examples:
+#?
+#?   $ doi2text 10.1103/PhysRev.140.A1133                    # write to stdout
+#?   $ doi2text 10.1103/PhysRev.140.A1133 >> index.md        # append to file
+#?   $ doi2text 10.1021/la203078w 10.1103/PhysRev.140.A1133  # get many DOIs
+#?   $ doi2text -s harvard3 10.1103/PhysRev.140.A1133        # set style
+#?   $ doi2text -l fr-FR 10.1002/jlac.18641310113            # set locale
+#?
+#? License:
+#?
+#?   doi2text and doi2bib <https://github.com/schneiderfelipe/doi2bib>
+#?   are licensed under the MIT License.
+
+locale=$(locale | grep LANGUAGE | cut -d= -f2 | cut -d: -f1 | tr '_' '-')
+style="chicago-author-date"
+
+while getopts ":hvs:Sl:L" opt "$@"; do
+  case $opt in
+    h)  # help
+      grep "^#?" "$0" | cut -c 4-
+      exit 0
+      ;;
+    v)  # version
+      grep "^#? doi2text" "$0" | cut -c 4-
+      exit 0
+      ;;
+    s)  # style
+      style="${OPTARG}"
+      ;;
+    S)  # list all styles
+      curl -s -X GET \
+        https://api.github.com/repos/citation-style-language/styles/contents/\?ref\=master | \
+        sed -e '/"name":.*\.csl"/{s/\s*"name": "//;s/\.csl",\s*//;p};d'
+      exit 0
+      ;;
+    l)  # locale
+      locale="${OPTARG}"
+      ;;
+    L)  # list all styles
+      curl -s -X GET \
+        https://api.github.com/repos/citation-style-language/locales/contents/\?ref\=master | \
+        sed -e '/"name":.*\.xml"/{s/\s*"name": "//;s/\.xml",\s*//;s/locales-//;p};d'
+      exit 0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+# recover $@
+shift $((OPTIND-1))
+
+# we consider everything after the command a list of DOIs.
+for doi in "$@"; do
+  # we do some encoding as needed.
+  doi=${doi//+/%2B}
+
+  # we retrieve the data from http://dx.doi.org/
+  curl -s -LH "Accept: text/x-bibliography; style=${style}; locale=${locale}" \
+      "http://dx.doi.org/${doi}"
+done

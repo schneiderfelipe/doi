@@ -1,4 +1,4 @@
-# doi2bib and url2bib
+# doi2bib and friends
 
 This repository provides scripts for converting from either [Digital Object Identifier (DOI)](https://www.doi.org) or [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to [BibTeX](http://www.bibtex.org).
 
@@ -14,6 +14,13 @@ Inspired by <https://gist.github.com/mlund/4609288> and
 
 **October 16, 2017**: <http://www.doi2bib.org/> seems not to be working
 any more.
+
+## doi2text
+
+Convert [Digital Object Identifier (DOI)](https://www.doi.org) to plain text
+using [crosscite.org](https://citation.crosscite.org/). DOIs are received and
+the corresponding text entries are output. In theory, all the styles
+available at <https://github.com/citation-style-language/styles> can be used.
 
 ## url2bib
 
