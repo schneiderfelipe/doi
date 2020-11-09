@@ -57,6 +57,9 @@
 
 locale=$(locale | grep LANGUAGE | cut -d= -f2 | cut -d: -f1 | tr '_' '-')
 style="chicago-author-date"
+if [ ! $locale ]; then
+  locale="en-US"
+fi
 
 while getopts ":hvs:Sl:L" opt "$@"; do
   case $opt in
@@ -104,8 +107,8 @@ shift $((OPTIND-1))
 for doi in "$@"; do
   # we do some encoding as needed.
   doi=${doi//+/%2B}
+  http_headers="Accept: text/x-bibliography; style=${style}; locale=${locale}"
 
-  # we retrieve the data from http://dx.doi.org/
-  curl -s -LH "Accept: text/x-bibliography; style=${style}; locale=${locale}" \
-      "http://dx.doi.org/${doi}"
+  # we retrieve the data from https://doi.org/
+  curl -s -LH "$http_headers" "https://doi.org/${doi}"
 done
