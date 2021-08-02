@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/67431697.svg)](https://zenodo.org/badge/latestdoi/67431697)
+
 # doi2bib and friends
 
 This repository provides scripts for converting from either [Digital Object Identifier (DOI)](https://www.doi.org) or [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to [BibTeX](http://www.bibtex.org), or from DOI to plain text.
