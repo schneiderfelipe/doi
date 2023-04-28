@@ -3,6 +3,8 @@ use std::str::FromStr;
 
 use clap::Parser;
 use doi::Doi;
+use nom_bibtex::Bibliography;
+use nom_bibtex::Bibtex;
 use reqwest::blocking::Client;
 use reqwest::blocking::Response;
 use reqwest::header;
@@ -28,7 +30,10 @@ fn main() {
             .and_then(Response::text)
         {
             Ok(bibtex_data) => {
-                println!("{bibtex_data}");
+                let bibtex = Bibtex::parse(&bibtex_data).expect("should be valid");
+                for biblio in bibtex.bibliographies() {
+                    print(biblio);
+                }
             }
             Err(e) => {
                 eprintln!("Error retrieving DOI {doi}: {e}");
@@ -36,4 +41,12 @@ fn main() {
             }
         }
     }
+}
+
+fn print(biblio: &Bibliography) {
+    println!("@{}{{{},", biblio.entry_type(), biblio.citation_key());
+    for (key, value) in biblio.tags() {
+        println!("  {key}={{{value}}},");
+    }
+    println!("}}\n");
 }
