@@ -33,22 +33,22 @@
 #?
 #? Examples:
 #?
-#?   $ url2bib https://github.com/schneiderfelipe/doi2bib                                         # write to stdout
-#?   $ url2bib https://github.com/schneiderfelipe/doi2bib >> citations.bib                        # append to file
-#?   $ url2bib https://github.com/schneiderfelipe/doi2bib https://en.wikipedia.org/wiki/Brazilin  # get many URLs
+#?   $ url2bib https://github.com/schneiderfelipe/doi                                         # write to stdout
+#?   $ url2bib https://github.com/schneiderfelipe/doi >> citations.bib                        # append to file
+#?   $ url2bib https://github.com/schneiderfelipe/doi https://en.wikipedia.org/wiki/Brazilin  # get many URLs
 #?
 #? License:
 #?
-#?   url2bib and doi2bib <https://github.com/schneiderfelipe/doi2bib>
+#?   url2bib and doi2bib <https://github.com/schneiderfelipe/doi>
 #?   are licensed under the MIT License.
 
 while getopts ":hv" opt "$@"; do
   case $opt in
-    h)  # help
+    h) # help
       grep "^#?" "$0" | cut -c 4-
       exit 0
       ;;
-    v)  # version
+    v) # version
       grep "^#? url2bib" "$0" | cut -c 4-
       exit 0
       ;;
@@ -64,7 +64,7 @@ while getopts ":hv" opt "$@"; do
 done
 
 # recover $@
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 
 # we consider everything after the command a list of URLs.
 for url in "$@"; do
@@ -72,14 +72,14 @@ for url in "$@"; do
   url=${url//+/%2B}
 
   # https://unix.stackexchange.com/a/103253/211802
-  title=$(wget -qO- "${url}" | \
-          gawk -v IGNORECASE=1 -v RS='</title' 'RT{gsub(/.*<title[^>]*>/,"");print;exit}')
+  title=$(wget -qO- "${url}" \
+    | gawk -v IGNORECASE=1 -v RS='</title' 'RT{gsub(/.*<title[^>]*>/,"");print;exit}')
 
   # https://gist.github.com/oneohthree/f528c7ae1e701ad990e6
-  slug=$(echo "${title}" | iconv -t ascii//TRANSLIT | \
-         sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr "[:upper:]" "[:lower:]")
+  slug=$(echo "${title}" | iconv -t ascii//TRANSLIT \
+    | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr "[:upper:]" "[:lower:]")
 
-  cat <<eor
+  cat << eor
 @misc{${slug},
   title = {${title}},
   howpublished = {\\url{${url}}},

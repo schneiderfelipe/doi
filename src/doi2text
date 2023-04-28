@@ -52,7 +52,7 @@
 #?
 #? License:
 #?
-#?   doi2text and doi2bib <https://github.com/schneiderfelipe/doi2bib>
+#?   doi2text and doi2bib <https://github.com/schneiderfelipe/doi>
 #?   are licensed under the MIT License.
 
 style="american-chemical-society"
@@ -64,30 +64,30 @@ fi
 
 while getopts ":hvs:Sl:L" opt "$@"; do
   case $opt in
-    h)  # help
+    h) # help
       grep "^#?" "$0" | cut -c 4-
       exit 0
       ;;
-    v)  # version
+    v) # version
       grep "^#? doi2text" "$0" | cut -c 4-
       exit 0
       ;;
-    s)  # style
+    s) # style
       style="${OPTARG}"
       ;;
-    S)  # list all styles
+    S) # list all styles
       curl -X GET \
-        https://api.github.com/repos/citation-style-language/styles/contents/\?ref\=master | \
-        sed -e '/"name":.*\.csl"/{s/\s*"name": "//;s/\.csl",\s*//;p};d'
+        https://api.github.com/repos/citation-style-language/styles/contents/\?ref\=master \
+        | sed -e '/"name":.*\.csl"/{s/\s*"name": "//;s/\.csl",\s*//;p};d'
       exit 0
       ;;
-    l)  # locale
+    l) # locale
       locale="${OPTARG}"
       ;;
-    L)  # list all styles
+    L) # list all styles
       curl -X GET \
-        https://api.github.com/repos/citation-style-language/locales/contents/\?ref\=master | \
-        sed -e '/"name":.*\.xml"/{s/\s*"name": "//;s/\.xml",\s*//;s/locales-//;p};d'
+        https://api.github.com/repos/citation-style-language/locales/contents/\?ref\=master \
+        | sed -e '/"name":.*\.xml"/{s/\s*"name": "//;s/\.xml",\s*//;s/locales-//;p};d'
       exit 0
       ;;
     \?)
@@ -102,14 +102,14 @@ while getopts ":hvs:Sl:L" opt "$@"; do
 done
 
 # recover $@
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 
 # we consider everything after the command a list of DOIs.
 for doi in "$@"; do
   # we do some encoding as needed.
   doi=${doi//+/%2B}
   http_headers="Accept: text/x-bibliography; style=${style}; locale=${locale}"
-  
+
   echo "$http_headers"
   echo
 

@@ -78,7 +78,7 @@ By default, it will install in `/usr/local/bin/`.
       pages={3792–3799}
     }
 
-    $ url2bib google.com http://schneiderfelipe.xyz/ https://github.com/schneiderfelipe/doi2bib
+    $ url2bib google.com https://schneiderfelipe.github.io/ https://github.com/schneiderfelipe/doi
     @misc{google,
       title = {Google},
       howpublished = {\url{google.com}},
@@ -87,13 +87,13 @@ By default, it will install in `/usr/local/bin/`.
 
     @misc{felipe-s-s-schneider,
       title = {Felipe S. S. Schneider},
-      howpublished = {\url{http://schneiderfelipe.xyz/}},
+      howpublished = {\url{https://schneiderfelipe.github.io/}},
       note = {Accessed: 2020-01-27}
     }
 
-    @misc{github-schneiderfelipe-doi2bib-convert-dois-and-urls-to-bibtex,
-      title = {GitHub - schneiderfelipe/doi2bib: Convert DOIs and URLs to BibTeX},
-      howpublished = {\url{https://github.com/schneiderfelipe/doi2bib}},
+    @misc{github-schneiderfelipe-doi-convert-dois-and-urls-to-bibtex,
+      title = {GitHub - schneiderfelipe/doi: Convert DOIs and URLs to BibTeX},
+      howpublished = {\url{https://github.com/schneiderfelipe/doi}},
       note = {Accessed: 2020-01-27}
     }
 
