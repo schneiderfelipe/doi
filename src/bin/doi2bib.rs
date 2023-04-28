@@ -46,18 +46,14 @@ fn main() {
         process::exit(1);
     }
 
-    let http_headers = "Accept: text/bibliography; style=bibtex";
-
     for doi in doi_list {
         // We do some encoding as needed.
         let doi = doi.replace('+', "%2B");
-        println!("{http_headers}");
-        println!();
 
         // We retrieve the data from https://doi.org/
         match reqwest::blocking::Client::new()
             .get(&format!("https://doi.org/{doi}"))
-            .header("Accept", http_headers)
+            .header(reqwest::header::ACCEPT, "text/bibliography; style=bibtex")
             .send()
         {
             Ok(resp) => {
