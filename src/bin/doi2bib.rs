@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use clap::Parser;
 use doi::Doi;
+use either::Either;
 use itertools::Itertools;
 use itertools::Position;
 use nom_bibtex::Bibliography;
@@ -30,12 +31,13 @@ fn main() {
             .header(header::ACCEPT, "text/bibliography; style=bibtex")
             .send()
             .and_then(Response::text)
+            .map_err(Either::Left)
+            .and_then(|text| Bibtex::parse(&text).map_err(Either::Right))
         {
-            Ok(bibtex_data) => {
-                let bibtex = Bibtex::parse(&bibtex_data).expect("should be valid");
-                for biblio in bibtex.bibliographies() {
+            Ok(bibtex) => {
+                bibtex.bibliographies().iter().for_each(|biblio| {
                     print(biblio);
-                }
+                });
             }
             Err(e) => {
                 eprintln!("Error retrieving DOI {doi}: {e}");
@@ -47,7 +49,7 @@ fn main() {
 
 fn print(biblio: &Bibliography) {
     println!("@{}{{{},", biblio.entry_type(), biblio.citation_key());
-    for item in biblio.tags().iter().with_position() {
+    biblio.tags().iter().with_position().for_each(|item| {
         match item {
             Position::First((key, value)) | Position::Middle((key, value)) => {
                 println!("  {key:9} = {{{value}}},");
@@ -56,6 +58,6 @@ fn print(biblio: &Bibliography) {
                 println!("  {key:9} = {{{value}}}");
             }
         }
-    }
+    });
     println!("}}\n");
 }
