@@ -34,7 +34,7 @@
 #?   -v  show version
 #?   -s  set ciation style from the ones given in
 #?       <https://github.com/citation-style-language/styles> (this is
-#?       "chicago-author-date" by default, see examples below)
+#?       "american-chemical-society" by default, see examples below)
 #?   -S  list all available citation styles and quit
 #?   -l  set locale from the ones given in
 #?       <https://github.com/citation-style-language/locales>, e.g. "pt-BR"
@@ -52,41 +52,42 @@
 #?
 #? License:
 #?
-#?   doi2text and doi2bib <https://github.com/schneiderfelipe/doi2bib>
+#?   doi2text and doi2bib <https://github.com/schneiderfelipe/doi>
 #?   are licensed under the MIT License.
 
+style="american-chemical-society"
+
 locale=$(locale | grep LANGUAGE | cut -d= -f2 | cut -d: -f1 | tr '_' '-')
-style="chicago-author-date"
 if [ ! $locale ]; then
   locale="en-US"
 fi
 
 while getopts ":hvs:Sl:L" opt "$@"; do
   case $opt in
-    h)  # help
+    h) # help
       grep "^#?" "$0" | cut -c 4-
       exit 0
       ;;
-    v)  # version
+    v) # version
       grep "^#? doi2text" "$0" | cut -c 4-
       exit 0
       ;;
-    s)  # style
+    s) # style
       style="${OPTARG}"
       ;;
-    S)  # list all styles
-      curl -s -X GET \
-        https://api.github.com/repos/citation-style-language/styles/contents/\?ref\=master | \
-        sed -e '/"name":.*\.csl"/{s/\s*"name": "//;s/\.csl",\s*//;p};d'
+    S) # list all styles
+      curl -X GET \
+        https://api.github.com/repos/citation-style-language/styles/contents/\?ref\=master \
+        | sed -e '/"name":.*\.csl"/{s/\s*"name": "//;s/\.csl",\s*//;p};d'
       exit 0
       ;;
-    l)  # locale
+    l) # locale
       locale="${OPTARG}"
       ;;
-    L)  # list all styles
-      curl -s -X GET \
-        https://api.github.com/repos/citation-style-language/locales/contents/\?ref\=master | \
-        sed -e '/"name":.*\.xml"/{s/\s*"name": "//;s/\.xml",\s*//;s/locales-//;p};d'
+    L) # list all styles
+      curl -X GET \
+        https://api.github.com/repos/citation-style-language/locales/contents/\?ref\=master \
+        | sed -e '/"name":.*\.xml"/{s/\s*"name": "//;s/\.xml",\s*//;s/locales-//;p};d'
       exit 0
       ;;
     \?)
@@ -101,7 +102,7 @@ while getopts ":hvs:Sl:L" opt "$@"; do
 done
 
 # recover $@
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 
 # we consider everything after the command a list of DOIs.
 for doi in "$@"; do
@@ -109,6 +110,9 @@ for doi in "$@"; do
   doi=${doi//+/%2B}
   http_headers="Accept: text/x-bibliography; style=${style}; locale=${locale}"
 
+  echo "$http_headers"
+  echo
+
   # we retrieve the data from https://doi.org/
-  curl -s -LH "$http_headers" "https://doi.org/${doi}"
+  curl -LH "$http_headers" "https://doi.org/${doi}"
 done
