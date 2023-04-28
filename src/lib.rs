@@ -6,12 +6,6 @@
 use nutype::nutype;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use url::Url;
-
-/// Prefix URL for retrieving information about
-/// [Digital object identifiers](https://en.wikipedia.org/wiki/Digital_object_identifier)
-/// (DOIs).
-static URL: Lazy<Url> = Lazy::new(|| Url::parse("https://doi.org/").expect("should be parseable"));
 
 /// Regex for
 /// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier)
@@ -36,10 +30,18 @@ static REGEX: Lazy<Regex> =
 #[derive(Display)]
 pub struct Doi(String);
 
+use url::Url;
+
+/// Prefix URL for retrieving information about
+/// [Digital object identifiers](https://en.wikipedia.org/wiki/Digital_object_identifier)
+/// (DOIs).
+static URL: Lazy<Url> = Lazy::new(|| Url::parse("https://doi.org/").expect("should be parseable"));
+
 /// Sanitize a
 /// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier)
 /// (DOI).
-#[allow(clippy::map_unwrap_or)]
+#[inline]
+#[allow(clippy::needless_pass_by_value)]
 fn sanitize_doi(doi: String) -> String {
     [URL.as_str(), "doi:"]
         .into_iter()
@@ -50,12 +52,14 @@ fn sanitize_doi(doi: String) -> String {
 }
 
 impl From<Doi> for Url {
+    #[inline]
     fn from(doi: Doi) -> Self {
         Self::from(&doi)
     }
 }
 
 impl From<&Doi> for Url {
+    #[inline]
     fn from(doi: &Doi) -> Self {
         URL.join(doi.as_ref()).expect("should be joinable")
     }
