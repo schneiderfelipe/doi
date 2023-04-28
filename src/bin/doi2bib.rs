@@ -16,23 +16,13 @@ fn main() {
     let cli = Cli::parse();
 
     for doi in cli.doi {
-        // We do some encoding as needed.
-        let doi = doi.replace('+', "%2B");
-
-        // We retrieve the data from https://doi.org/
         match reqwest::blocking::Client::new()
             .get(&format!("https://doi.org/{doi}"))
             .header(reqwest::header::ACCEPT, "text/bibliography; style=bibtex")
             .send()
+            .and_then(reqwest::blocking::Response::text)
         {
-            Ok(resp) => {
-                let bibtex_data = resp
-                    .text()
-                    .unwrap()
-                    .replace(", ", ",\n  ")
-                    .replace("}, ", "},\n  ")
-                    .replace(",\n  ", ", ")
-                    .replace("}}", "}\n}\n");
+            Ok(bibtex_data) => {
                 println!("{bibtex_data}");
             }
             Err(e) => {
