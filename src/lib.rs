@@ -37,7 +37,9 @@ pub struct Doi(String);
 
 use url::Url;
 
-/// Prefix URL for retrieving information about
+/// Prefix
+/// [URL](https://en.wikipedia.org/wiki/URL)
+/// for retrieving information about
 /// [Digital object identifiers](https://en.wikipedia.org/wiki/Digital_object_identifier)
 /// (DOIs).
 static URL: Lazy<Url> = Lazy::new(|| Url::parse("https://doi.org/").expect("should be parseable"));
