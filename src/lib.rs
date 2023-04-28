@@ -1,108 +1,51 @@
-use std::fmt;
-use std::str::FromStr;
+//! A strongly-typed library for working
+//! with
+//! [Digital object identifiers](https://en.wikipedia.org/wiki/Digital_object_identifier).
+//! (DOIs).
 
-use itertools::Itertools;
 use nutype::nutype;
-use thiserror::Error;
+use once_cell::sync::Lazy;
 use url::Url;
 
-#[derive(Clone, Debug)]
-pub struct Doi {
-    prefix: DoiPrefix,
-    suffix: DoiSuffix,
-}
+/// Prefix URL for a
+/// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier).
+static URL: Lazy<Url> =
+    Lazy::new(|| Url::parse("https://doi.org/").expect("URL should be parseable"));
 
-#[derive(Clone, Debug, Error)]
-pub enum DoiParseError {
-    #[error("slash not found")]
-    SlashNotFound,
+/// Namespace of a
+/// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier).
+const NAMESPACE: &str = "10.";
 
-    #[error("not in DOI namespace")]
-    NotInNamespace,
-
-    #[error("failed to parse prefix subdivision: {0}")]
-    PrefixSubdivision(#[from] DoiPrefixSubdivisionError),
-
-    #[error("failed to parse suffix: {0}")]
-    Suffix(#[from] DoiSuffixError),
-}
-
-impl FromStr for Doi {
-    type Err = DoiParseError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.strip_prefix(DOI_ORG).unwrap_or(s);
-        let s = s.strip_prefix("doi:").unwrap_or(s);
-
-        let (prefix, suffix) = s.split_once('/').ok_or(DoiParseError::SlashNotFound)?;
-        Ok(Self {
-            prefix: prefix.parse()?,
-            suffix: suffix.parse()?,
-        })
-    }
-}
-
-#[derive(Clone, Debug)]
-struct DoiPrefix {
-    subdivisions: Vec<DoiPrefixSubdivision>,
-}
-
+/// A
+/// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier).
 #[nutype(
-    sanitize(trim, lowercase)
-    validate(not_empty)
+    sanitize(trim, lowercase, with = sanitize_doi)
+    validate(not_empty, with = validate_doi)
 )]
-#[derive(AsRef, Clone, Debug, Display, FromStr)]
-struct DoiPrefixSubdivision(String);
+#[derive(*)]
+#[derive(Display)]
+pub struct Doi(String);
 
-impl FromStr for DoiPrefix {
-    type Err = DoiParseError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s
-            .strip_prefix(DOI_NAMESPACE)
-            .ok_or(DoiParseError::NotInNamespace)?;
-        let subdivisions: Result<_, _> = s.split('.').map(str::parse).collect();
-        let subdivisions = subdivisions?;
-        Ok(Self { subdivisions })
-    }
+#[allow(clippy::map_unwrap_or)]
+fn sanitize_doi(doi: String) -> String {
+    [URL.as_str(), "doi:"].into_iter().fold(doi, |doi, prefix| {
+        doi.strip_prefix(prefix).map(Into::into).unwrap_or(doi)
+    })
 }
 
-#[nutype(
-    sanitize(trim, lowercase)
-    validate(not_empty)
-)]
-#[derive(AsRef, Clone, Debug, Display, FromStr)]
-struct DoiSuffix(String);
-
-impl fmt::Display for Doi {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.prefix, self.suffix)
-    }
+fn validate_doi(doi: &str) -> bool {
+    doi.starts_with(NAMESPACE) && doi.contains('/')
 }
-
-impl fmt::Display for DoiPrefix {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{DOI_NAMESPACE}")?;
-        self.subdivisions
-            .iter()
-            .map(AsRef::as_ref)
-            .intersperse(".")
-            .try_for_each(|s| write!(f, "{s}"))
-    }
-}
-
-const DOI_NAMESPACE: &str = "10.";
-const DOI_ORG: &str = "https://doi.org/";
 
 impl From<Doi> for Url {
     fn from(doi: Doi) -> Self {
-        Self::parse(&format!("{DOI_ORG}{doi}")).expect("DOI should always be translatable to URL")
+        Self::from(&doi)
     }
 }
 
 impl From<&Doi> for Url {
     fn from(doi: &Doi) -> Self {
-        Self::parse(&format!("https://doi.org/{doi}"))
+        URL.join(doi.as_ref())
             .expect("DOI should always be translatable to URL")
     }
 }
