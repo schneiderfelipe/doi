@@ -75,7 +75,7 @@ impl FromStr for DoiPrefix {
         let s = s
             .strip_prefix(DOI_NAMESPACE)
             .ok_or(DoiParseError::NotInNamespace)?;
-        let subdivisions: Result<_, _> = s.split('.').map(|s| s.parse()).collect();
+        let subdivisions: Result<_, _> = s.split('.').map(str::parse).collect();
         let subdivisions = subdivisions?;
         Ok(Self { subdivisions })
     }
@@ -99,7 +99,7 @@ impl fmt::Display for DoiPrefix {
         write!(f, "{DOI_NAMESPACE}")?;
         self.subdivisions
             .iter()
-            .map(|s| s.as_ref())
+            .map(AsRef::as_ref)
             .intersperse(".")
             .try_for_each(|s| write!(f, "{s}"))
     }
