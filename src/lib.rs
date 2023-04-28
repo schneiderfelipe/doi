@@ -5,25 +5,32 @@
 
 use nutype::nutype;
 use once_cell::sync::Lazy;
+use regex::Regex;
 use url::Url;
 
 /// Prefix URL for retrieving information about
 /// [Digital object identifiers](https://en.wikipedia.org/wiki/Digital_object_identifier)
 /// (DOIs).
-static URL: Lazy<Url> =
-    Lazy::new(|| Url::parse("https://doi.org/").expect("URL should be parseable"));
+static URL: Lazy<Url> = Lazy::new(|| Url::parse("https://doi.org/").expect("should be parseable"));
 
-/// Namespace of
-/// [Digital object identifiers](https://en.wikipedia.org/wiki/Digital_object_identifier)
-/// (DOIs).
-const NAMESPACE: &str = "10.";
+/// Regex for
+/// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier)
+/// (DOI)
+/// validation.
+///
+/// It is taken from
+/// <https://stackoverflow.com/a/48524047/4039050>,
+/// which has been
+/// [recommended by CrossRef](https://www.crossref.org/blog/dois-and-matching-regular-expressions/).
+static REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"/^10.\d{4,9}/[-._;()/:A-Z0-9]+$/i").expect("should be valid"));
 
 /// A
 /// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier)
 /// (DOI).
 #[nutype(
     sanitize(trim, lowercase, with = sanitize_doi)
-    validate(not_empty, with = validate_doi)
+    validate(not_empty, regex = REGEX)
 )]
 #[derive(*)]
 #[derive(Display)]
@@ -42,13 +49,6 @@ fn sanitize_doi(doi: String) -> String {
         .into()
 }
 
-/// Validate a
-/// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier)
-/// (DOI).
-fn validate_doi(doi: &str) -> bool {
-    doi.starts_with(NAMESPACE) && doi.contains('/')
-}
-
 impl From<Doi> for Url {
     fn from(doi: Doi) -> Self {
         Self::from(&doi)
@@ -57,7 +57,6 @@ impl From<Doi> for Url {
 
 impl From<&Doi> for Url {
     fn from(doi: &Doi) -> Self {
-        URL.join(doi.as_ref())
-            .expect("DOI should always be translatable to URL")
+        URL.join(doi.as_ref()).expect("should be joinable")
     }
 }
