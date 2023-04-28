@@ -4,6 +4,7 @@ use std::str::FromStr;
 
 use clap::Parser;
 use itertools::Itertools;
+use nutype::nutype;
 use reqwest::blocking::Client;
 use reqwest::blocking::Response;
 use reqwest::header;
@@ -11,7 +12,7 @@ use thiserror::Error;
 use url::Url;
 
 /// Retrieve BibTeX data for a given DOI.
-#[derive(Parser)]
+#[derive(Clone, Debug, Parser)]
 #[command(author, version, about, arg_required_else_help(true))]
 struct Cli {
     /// DOI to retrieve BibTeX data for.
@@ -19,19 +20,25 @@ struct Cli {
     doi: Vec<Doi>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Doi {
     prefix: DoiPrefix,
     suffix: DoiSuffix,
 }
 
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 enum DoiParseError {
     #[error("slash not found")]
     SlashNotFound,
 
     #[error("not in DOI namespace")]
-    NotInDoiNamespace,
+    NotInNamespace,
+
+    #[error("failed to parse prefix subdivision: {0}")]
+    PrefixSubdivision(#[from] DoiPrefixSubdivisionError),
+
+    #[error("failed to parse suffix: {0}")]
+    Suffix(#[from] DoiSuffixError),
 }
 
 impl FromStr for Doi {
@@ -44,29 +51,42 @@ impl FromStr for Doi {
         let (prefix, suffix) = s.split_once('/').ok_or(DoiParseError::SlashNotFound)?;
         Ok(Self {
             prefix: prefix.parse()?,
-            suffix: suffix.to_lowercase(),
+            suffix: suffix.parse()?,
         })
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct DoiPrefix {
-    subdivisions: Vec<String>,
+    subdivisions: Vec<DoiPrefixSubdivision>,
 }
+
+#[nutype(
+    sanitize(trim, lowercase)
+    validate(not_empty)
+)]
+#[derive(AsRef, Clone, Debug, Display, FromStr)]
+struct DoiPrefixSubdivision(String);
 
 impl FromStr for DoiPrefix {
     type Err = DoiParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s
-            .strip_prefix("10.")
-            .ok_or(DoiParseError::NotInDoiNamespace)?;
-        let subdivisions = s.split('.').map(str::to_lowercase).collect();
+            .strip_prefix(DOI_NAMESPACE)
+            .ok_or(DoiParseError::NotInNamespace)?;
+        let subdivisions: Result<_, _> = s.split('.').map(|s| s.parse()).collect();
+        let subdivisions = subdivisions?;
         Ok(Self { subdivisions })
     }
 }
 
-type DoiSuffix = String;
+#[nutype(
+    sanitize(trim, lowercase)
+    validate(not_empty)
+)]
+#[derive(AsRef, Clone, Debug, Display, FromStr)]
+struct DoiSuffix(String);
 
 impl fmt::Display for Doi {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -76,14 +96,16 @@ impl fmt::Display for Doi {
 
 impl fmt::Display for DoiPrefix {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{DOI_NAMESPACE}")?;
         self.subdivisions
             .iter()
-            .map(std::string::String::as_str)
+            .map(|s| s.as_ref())
             .intersperse(".")
             .try_for_each(|s| write!(f, "{s}"))
     }
 }
 
+const DOI_NAMESPACE: &str = "10.";
 const DOI_ORG: &str = "https://doi.org/";
 
 impl From<Doi> for Url {
