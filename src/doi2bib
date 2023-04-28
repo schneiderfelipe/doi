@@ -71,9 +71,12 @@ for doi in "$@"; do
   # we do some encoding as needed.
   doi=${doi//+/%2B}
   http_headers="Accept: text/bibliography; style=bibtex"
+  
+  echo "$http_headers"
+  echo
 
   # we retrieve the data from https://doi.org/
-  curl -s -LH "$http_headers" "https://doi.org/${doi}" | \
+  curl -LH "$http_headers" "https://doi.org/${doi}" | \
     sed -e $'s/^ *//' \
         -e $'s/}, /},\\\n  /g' \
         -e $'s/, /,\\\n  /1' \

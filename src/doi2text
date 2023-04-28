@@ -34,7 +34,7 @@
 #?   -v  show version
 #?   -s  set ciation style from the ones given in
 #?       <https://github.com/citation-style-language/styles> (this is
-#?       "chicago-author-date" by default, see examples below)
+#?       "american-chemical-society" by default, see examples below)
 #?   -S  list all available citation styles and quit
 #?   -l  set locale from the ones given in
 #?       <https://github.com/citation-style-language/locales>, e.g. "pt-BR"
@@ -55,8 +55,9 @@
 #?   doi2text and doi2bib <https://github.com/schneiderfelipe/doi2bib>
 #?   are licensed under the MIT License.
 
+style="american-chemical-society"
+
 locale=$(locale | grep LANGUAGE | cut -d= -f2 | cut -d: -f1 | tr '_' '-')
-style="chicago-author-date"
 if [ ! $locale ]; then
   locale="en-US"
 fi
@@ -75,7 +76,7 @@ while getopts ":hvs:Sl:L" opt "$@"; do
       style="${OPTARG}"
       ;;
     S)  # list all styles
-      curl -s -X GET \
+      curl -X GET \
         https://api.github.com/repos/citation-style-language/styles/contents/\?ref\=master | \
         sed -e '/"name":.*\.csl"/{s/\s*"name": "//;s/\.csl",\s*//;p};d'
       exit 0
@@ -84,7 +85,7 @@ while getopts ":hvs:Sl:L" opt "$@"; do
       locale="${OPTARG}"
       ;;
     L)  # list all styles
-      curl -s -X GET \
+      curl -X GET \
         https://api.github.com/repos/citation-style-language/locales/contents/\?ref\=master | \
         sed -e '/"name":.*\.xml"/{s/\s*"name": "//;s/\.xml",\s*//;s/locales-//;p};d'
       exit 0
@@ -108,7 +109,10 @@ for doi in "$@"; do
   # we do some encoding as needed.
   doi=${doi//+/%2B}
   http_headers="Accept: text/x-bibliography; style=${style}; locale=${locale}"
+  
+  echo "$http_headers"
+  echo
 
   # we retrieve the data from https://doi.org/
-  curl -s -LH "$http_headers" "https://doi.org/${doi}"
+  curl -LH "$http_headers" "https://doi.org/${doi}"
 done

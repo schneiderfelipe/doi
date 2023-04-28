@@ -1,49 +1,53 @@
 [![DOI](https://zenodo.org/badge/67431697.svg)](https://zenodo.org/badge/latestdoi/67431697)
 
-# doi2bib and friends
-
-This repository provides scripts for converting from either [Digital Object Identifier (DOI)](https://www.doi.org) or [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to [BibTeX](http://www.bibtex.org), or from DOI to plain text.
-
 <p align="center">
   <img alt="ASCII video" src="cast.svg">
 </p>
 
-## doi2bib
+TODO: support storing to the clipboard automatically.
+TODO: add the surname of the first author automatically if not given (if only the year is shown as id when retrieved)
 
-Convert [Digital Object Identifier (DOI)](https://www.doi.org) to
-[BibTeX](http://www.bibtex.org) using
-[crosscite.org](https://citation.crosscite.org/).
+# Bibliography in your command-line
+
+This repository provides scripts for converting from either [Digital Object Identifier (DOI)](https://www.doi.org) or [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to [BibTeX](http://www.bibtex.org), or from DOI to plain text.
+
+## `doi2bib`
+
+Convert [Digital Object Identifier (DOI)](https://www.doi.org) to [BibTeX](http://www.bibtex.org) using [crosscite.org](https://citation.crosscite.org/).
 DOIs are received and the corresponding BibTeX entries are output.
+(Inspired by <https://gist.github.com/mlund/4609288> and <http://www.doi2bib.org/>.)
 
-Inspired by <https://gist.github.com/mlund/4609288> and
-<http://www.doi2bib.org/>.
+## `doi2text`
 
-**October 16, 2017**: <http://www.doi2bib.org/> seems not to be working
-any more.
+Convert [Digital Object Identifier (DOI)](https://www.doi.org) to plain text using [crosscite.org](https://citation.crosscite.org/).
+DOIs are received and the corresponding text entries are output. In theory, all the styles available at <https://github.com/citation-style-language/styles> can be used.
 
-## doi2text
+## `url2bib`
 
-Convert [Digital Object Identifier (DOI)](https://www.doi.org) to plain text
-using [crosscite.org](https://citation.crosscite.org/). DOIs are received and
-the corresponding text entries are output. In theory, all the styles
-available at <https://github.com/citation-style-language/styles> can be used.
-
-## url2bib
-
-Convert [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to
-[BibTeX](http://www.bibtex.org) using pure
-[Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)).
+Convert [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) to [BibTeX](http://www.bibtex.org) using pure [Bash](<https://en.wikipedia.org/wiki/Bash_(Unix_shell)>).
 URLs are received and the corresponding BibTeX entries are output.
+(This is made to be used exactly as one would use `doi2bib`.)
 
-(This is made to be used exactly as one would use doi2bib.)
+This requires `gawk` (`sudo apt install gawk`).
+
+## Dependencies
+
+`doi2bib` requires [curl](https://curl.haxx.se/):
+
+    $ sudo apt install curl
+
+You will also need `make` to install:
+
+    $ sudo apt install make
 
 ## Installation
 
 After downloading the tarball and using `cd` to go where the files are, simply do a `sudo make install` and everything will be installed.
+By default, it will install in `/usr/local/bin/`.
 
 ## Usage
 
-    $ doi2bib 10.1021/acs.jpcc.8b06244 10.1021/acscatal.9b00210                                
+    $ doi2bib 10.1021/acs.jpcc.8b06244 10.1021/acscatal.9b00210
     @article{Schneider_2018,
       title={How Do Secondary Phosphine Oxides Interact with Silver Nanoclusters? Insights from Computation},
       volume={122},
@@ -92,3 +96,7 @@ After downloading the tarball and using `cd` to go where the files are, simply d
       howpublished = {\url{https://github.com/schneiderfelipe/doi2bib}},
       note = {Accessed: 2020-01-27}
     }
+
+## Citing doi2bib
+
+If you use doi2bib in your research, please cite it.
