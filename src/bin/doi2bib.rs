@@ -2,7 +2,7 @@ use std::env;
 use std::process;
 
 fn print_usage(program: &str) {
-    println!("Usage: {} doi [doi...]", program);
+    println!("Usage: {program} doi [doi...]");
     println!("\t-h  show this message");
     println!("\t-v  show version");
 }
@@ -50,13 +50,13 @@ fn main() {
 
     for doi in doi_list {
         // We do some encoding as needed.
-        let doi = doi.replace("+", "%2B");
-        println!("{}", http_headers);
+        let doi = doi.replace('+', "%2B");
+        println!("{http_headers}");
         println!();
 
         // We retrieve the data from https://doi.org/
         match reqwest::blocking::Client::new()
-            .get(&format!("https://doi.org/{}", doi))
+            .get(&format!("https://doi.org/{doi}"))
             .header("Accept", http_headers)
             .send()
         {
@@ -68,10 +68,10 @@ fn main() {
                     .replace("}, ", "},\n  ")
                     .replace(",\n  ", ", ")
                     .replace("}}", "}\n}\n");
-                println!("{}", bibtex_data);
+                println!("{bibtex_data}");
             }
             Err(e) => {
-                eprintln!("Error retrieving DOI {}: {}", doi, e);
+                eprintln!("Error retrieving DOI {doi}: {e}");
                 process::exit(1);
             }
         }
