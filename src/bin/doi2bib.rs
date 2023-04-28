@@ -3,6 +3,8 @@ use std::str::FromStr;
 
 use clap::Parser;
 use doi::Doi;
+use itertools::Itertools;
+use itertools::Position;
 use nom_bibtex::Bibliography;
 use nom_bibtex::Bibtex;
 use reqwest::blocking::Client;
@@ -45,8 +47,15 @@ fn main() {
 
 fn print(biblio: &Bibliography) {
     println!("@{}{{{},", biblio.entry_type(), biblio.citation_key());
-    for (key, value) in biblio.tags() {
-        println!("  {key}={{{value}}},");
+    for item in biblio.tags().iter().with_position() {
+        match item {
+            Position::First((key, value)) | Position::Middle((key, value)) => {
+                println!("  {key:9} = {{{value}}},");
+            }
+            Position::Last((key, value)) | Position::Only((key, value)) => {
+                println!("  {key:9} = {{{value}}}");
+            }
+        }
     }
     println!("}}\n");
 }
