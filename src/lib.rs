@@ -6,6 +6,7 @@
 use nutype::nutype;
 use once_cell::sync::Lazy;
 use regex::Regex;
+use regex::RegexBuilder;
 
 /// Regex for
 /// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier)
@@ -16,8 +17,12 @@ use regex::Regex;
 /// <https://stackoverflow.com/a/48524047/4039050>,
 /// which has been
 /// [recommended by CrossRef](https://www.crossref.org/blog/dois-and-matching-regular-expressions/).
-static REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"/^10.\d{4,9}/[-._;()/:A-Z0-9]+$/i").expect("should be valid"));
+static REGEX: Lazy<Regex> = Lazy::new(|| {
+    RegexBuilder::new(r"^10.\d{4,9}/[-._;()/:A-Z0-9]+$")
+        .case_insensitive(true)
+        .build()
+        .expect("should be valid")
+});
 
 /// A
 /// [Digital object identifier](https://en.wikipedia.org/wiki/Digital_object_identifier)
