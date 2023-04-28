@@ -1,58 +1,38 @@
-use std::env;
 use std::process;
 
-fn print_usage(program: &str) {
-    println!("Usage: {program} doi [doi...]");
-    println!("\t-h  show this message");
-    println!("\t-v  show version");
-}
+use clap::App;
+use clap::AppSettings;
+use clap::Arg;
 
 fn print_version() {
     println!("doi2bib 1.1");
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let program = args[0].clone();
+    let matches = App::new("doi2bib")
+        .version("1.1")
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .about("Retrieves BibTeX data for a given DOI")
+        .arg(
+            Arg::with_name("doi")
+                .multiple(true)
+                .required(true)
+                .help("The DOI to retrieve BibTeX data for"),
+        )
+        .get_matches();
 
-    let mut do_help = false;
-    let mut do_version = false;
-
-    let mut doi_list = Vec::new();
-
-    let mut i = 1;
-    while i < args.len() {
-        match args[i].as_str() {
-            "-h" => do_help = true,
-            "-v" => do_version = true,
-            _ => doi_list.push(args[i].clone()),
-        }
-        i += 1;
-    }
-
-    if do_help {
-        print_usage(&program);
-        return;
-    }
-
-    if do_version {
+    if matches.is_present("version") {
         print_version();
         return;
     }
 
-    if doi_list.is_empty() {
-        eprintln!("No DOI provided");
-        print_usage(&program);
-        process::exit(1);
-    }
-
-    for doi in doi_list {
+    for doi in matches.values_of("doi").unwrap() {
         // We do some encoding as needed.
         let doi = doi.replace('+', "%2B");
 
         // We retrieve the data from https://doi.org/
         match reqwest::blocking::Client::new()
-            .get(&format!("https://doi.org/{doi}"))
+            .get(&format!("https://doi.org/{}", doi))
             .header(reqwest::header::ACCEPT, "text/bibliography; style=bibtex")
             .send()
         {
@@ -64,10 +44,10 @@ fn main() {
                     .replace("}, ", "},\n  ")
                     .replace(",\n  ", ", ")
                     .replace("}}", "}\n}\n");
-                println!("{bibtex_data}");
+                println!("{}", bibtex_data);
             }
             Err(e) => {
-                eprintln!("Error retrieving DOI {doi}: {e}");
+                eprintln!("Error retrieving DOI {}: {}", doi, e);
                 process::exit(1);
             }
         }
