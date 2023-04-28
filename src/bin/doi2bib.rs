@@ -1,6 +1,9 @@
 use std::process;
 
 use clap::Parser;
+use reqwest::blocking::Client;
+use reqwest::blocking::Response;
+use reqwest::header;
 
 /// Retrieve BibTeX data for a given DOI.
 #[derive(Parser)]
@@ -16,11 +19,11 @@ fn main() {
     let cli = Cli::parse();
 
     for doi in cli.doi {
-        match reqwest::blocking::Client::new()
+        match Client::new()
             .get(&format!("https://doi.org/{doi}"))
-            .header(reqwest::header::ACCEPT, "text/bibliography; style=bibtex")
+            .header(header::ACCEPT, "text/bibliography; style=bibtex")
             .send()
-            .and_then(reqwest::blocking::Response::text)
+            .and_then(Response::text)
         {
             Ok(bibtex_data) => {
                 println!("{bibtex_data}");
